@@ -1,0 +1,36 @@
+{
+  "files": [
+    {
+      "id": 1,
+      "filename": "testdatei",
+      "trackerId": 1,
+      "seederIds": [
+
+      ]
+    },
+    {
+      "id": 2,
+      "filename": "testfile2",
+      "trackerId": 1,
+      "seederIds": [
+        15, 5, 53, 2, 1
+      ]
+    },
+    {
+      "id": 3,
+      "filename": "testfile3",
+      "trackerId": 2,
+      "seederIds": [
+        12, 1, 2, 3, 4
+      ]
+    },
+    {
+      "id": 4,
+      "filename": "testfile4",
+      "trackerId": 1,
+      "seederIds": [
+        11, 12, 3, 1, 56
+      ]
+    }
+  ]
+}
