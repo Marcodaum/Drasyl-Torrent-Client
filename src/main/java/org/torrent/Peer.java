@@ -145,11 +145,5 @@ public class Peer {
         DrasylNode node = createNode(peerId, peerConfig, torrentFile, maxPeersPerFile, initialFileContent);
 
         node.start();
-
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

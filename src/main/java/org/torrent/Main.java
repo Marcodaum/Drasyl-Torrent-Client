@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 
 public class Main {
@@ -30,7 +31,23 @@ public class Main {
 
         Peer currentPeer3 = new Peer(3, torrentFiles.getTorrentFile("testdatei"), 3, files.get("testdatei"));
 
-        Peer currentPeer4 = new Peer(4, torrentFiles.getTorrentFile("testdatei"), 3, null);
+        Peer currentPeer4 = new Peer(4, torrentFiles.getTorrentFile("testdatei"), 3, files.get("testdatei"));
+
+        Peer currentPeer5 = new Peer(5, torrentFiles.getTorrentFile("testdatei"), 3, files.get("testdatei"));
+
+        Peer currentPeer6 = new Peer(6, torrentFiles.getTorrentFile("testdatei"), 3, files.get("testdatei"));
+
+        Peer currentPeer7 = new Peer(7, torrentFiles.getTorrentFile("testdatei"), 3, files.get("testdatei"));
+
+        Peer currentPeer8 = new Peer(8, torrentFiles.getTorrentFile("testdatei"), 3, null);
+
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        Peer currentPeer9 = new Peer(9, torrentFiles.getTorrentFile("testdatei"), 7, null);
 
         while(true) {}
     }
