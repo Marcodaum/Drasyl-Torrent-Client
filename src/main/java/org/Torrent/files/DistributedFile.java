@@ -1,6 +1,5 @@
-package org.example.files;
+package org.Torrent.files;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class DistributedFile {

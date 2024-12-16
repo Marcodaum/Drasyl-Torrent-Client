@@ -1,7 +1,7 @@
-package org.example;
+package org.Torrent;
 
 import org.drasyl.node.*;
-import org.example.files.TorrentFiles;
+import org.Torrent.files.TorrentFiles;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 
 public class Main {

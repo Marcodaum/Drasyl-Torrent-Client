@@ -1,9 +1,8 @@
-package org.example.files;
+package org.Torrent.files;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class TrackerFile {
