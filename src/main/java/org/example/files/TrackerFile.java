@@ -1,18 +1,37 @@
 package org.example.files;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class TrackerFile {
-    private int id;
     private String filename;
-    private int trackerId;
-    private String[] seederIds;
+    private String trackerId;
+    private ArrayList<String> seederIds = new ArrayList<>();
 
-    public int getId() {return this.id;}
+    public TrackerFile(JSONObject torrentFile) {
+        this.filename = (String) torrentFile.get("filename");
+        this.trackerId = (String) torrentFile.get("trackerId");
+        JSONArray seeders = (JSONArray) torrentFile.get("seederIds");
+        for (Object seeder : seeders) {
+            this.seederIds.add((String) seeder);
+        }
+    }
+
+    public TrackerFile(String filename, String trackerId, ArrayList<String> seederIds) {
+        this.filename = filename;
+        this.trackerId = trackerId;
+        this.seederIds = seederIds;
+    }
+
     public String getFilename() {return this.filename;}
-    public int getTrackerId() {return this.trackerId;}
-    public String[] getSeederIds() {return this.seederIds;}
+    public String getTrackerId() {return this.trackerId;}
+    public ArrayList<String> getSeederIds() {return this.seederIds;}
 
-    public void setId(int id) {this.id=id;}
     public void setFilename(String filename) {this.filename=filename;}
-    public void setTrackerId(int trackerId) {this.trackerId=trackerId;}
-    public void setSeederIds(String[] seederIds) {this.seederIds=seederIds;}
+    public void setTrackerId(String trackerId) {this.trackerId=trackerId;}
+    public void setSeederIds(ArrayList<String> seederIds) {this.seederIds=seederIds;}
+    public void addSeeder(String seederId) {this.seederIds.add(seederId);}
 }

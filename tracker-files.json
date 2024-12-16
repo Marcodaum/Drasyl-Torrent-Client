@@ -1,35 +1,31 @@
 {
   "files": [
     {
-      "id": 1,
       "filename": "testdatei",
-      "trackerId": 1,
+      "trackerId": "d01e972aefc92a461ccba822e19c2ea202b597bddb9e868786529b0dc597b764",
       "seederIds": [
-
+        "630f81311925fb9b316f05a0cb801b972fcc0b17a850ca1d54d0b8b8f6eb7f79"
       ]
     },
     {
-      "id": 2,
       "filename": "testfile2",
-      "trackerId": 1,
+      "trackerId": "1",
       "seederIds": [
-        15, 5, 53, 2, 1
+        "15", "5", "53", "2", "1"
       ]
     },
     {
-      "id": 3,
       "filename": "testfile3",
-      "trackerId": 2,
+      "trackerId": "2",
       "seederIds": [
-        12, 1, 2, 3, 4
+        "12", "1"
       ]
     },
     {
-      "id": 4,
       "filename": "testfile4",
-      "trackerId": 1,
+      "trackerId": "1",
       "seederIds": [
-        11, 12, 3, 1, 56
+        "11", "12", "3", "1", "56"
       ]
     }
   ]
