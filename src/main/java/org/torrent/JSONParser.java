@@ -1,4 +1,4 @@
-package org.Torrent;
+package org.torrent;
 
 public class JSONParser {
 

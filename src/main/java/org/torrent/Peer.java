@@ -1,4 +1,4 @@
-package org.Torrent;
+package org.torrent;
 
 import org.drasyl.identity.DrasylAddress;
 import org.drasyl.node.DrasylConfig;
@@ -8,9 +8,9 @@ import org.drasyl.node.event.Event;
 import org.drasyl.node.event.MessageEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.drasyl.node.event.NodeUpEvent;
-import org.Torrent.files.DistributedFile;
-import org.Torrent.files.TorrentFile;
-import org.Torrent.files.TrackerFile;
+import org.torrent.files.DistributedFile;
+import org.torrent.files.TorrentFile;
+import org.torrent.files.TrackerFile;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import java.nio.file.Path;

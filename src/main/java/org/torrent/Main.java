@@ -1,7 +1,7 @@
-package org.Torrent;
+package org.torrent;
 
 import org.drasyl.node.*;
-import org.Torrent.files.TorrentFiles;
+import org.torrent.files.TorrentFiles;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;

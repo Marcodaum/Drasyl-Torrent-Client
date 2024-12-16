@@ -1,4 +1,4 @@
-package org.Torrent;
+package org.torrent;
 import org.drasyl.identity.DrasylAddress;
 import org.drasyl.node.*;
 import org.drasyl.node.event.*;
@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.Torrent.files.TrackerFile;
-import org.Torrent.files.TrackerFiles;
+import org.torrent.files.TrackerFile;
+import org.torrent.files.TrackerFiles;
 
 
 public class Tracker {
