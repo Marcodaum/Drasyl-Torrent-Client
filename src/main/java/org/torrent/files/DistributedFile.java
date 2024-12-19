@@ -16,6 +16,7 @@ public class DistributedFile {
         this.data = fullData;
         this.fileName = fileName;
         this.isComplete = true;
+
     }
 
     public DistributedFile(int fileSize, String fileName) {
@@ -24,9 +25,27 @@ public class DistributedFile {
         this.fileName = fileName;
     }
 
-    public boolean isComplete() {return isComplete;};
-    public void setComplete(boolean isComplete) {this.isComplete = true;}
+    public boolean isComplete() {
+        if (this.isComplete) {
+            return true;
+        }
+        for(boolean b : this.chunks) if(!b) return false;
+        this.isComplete = true;
+        return true;
+    }
+
+    public int getCompletionPercentage() {
+        int finishedChunks = 0;
+        for (int i = 0; i < this.chunkSize; i++) {
+            if (this.chunks[i]) {
+                finishedChunks++;
+            }
+        }
+        return (int)(((double)finishedChunks / this.chunkSize) * 100);
+    }
+
     public byte[] getAllData() {return data;}
+
 
     public byte[] getDataChunk(int offset, int length) {
         if (isComplete()) {
@@ -36,7 +55,7 @@ public class DistributedFile {
             return null;
         }
     }
-    public void addDataChunk(byte[] chunkData, int offset, int length) {
+    public boolean addDataChunk(byte[] chunkData, int offset, int length) {
         if (this.fileSize % length == 0) {
             if (chunks == null) {
                 // Calculate the number of chunks, necessary to complete the file. All chunks have the same size
@@ -48,6 +67,7 @@ public class DistributedFile {
         } else {
             System.out.println("File " + this.getFileName() + ": Can not initialize Data-Chunks, as the chunk length is no divider of the file size!" + getFileSize());
         }
+        return this.isComplete();
     }
 
     public String getFileName() {return fileName;}

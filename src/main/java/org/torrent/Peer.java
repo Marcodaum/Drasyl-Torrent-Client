@@ -112,7 +112,7 @@ public class Peer {
                             byte[] request_dataToSend = requestedFile.getDataChunk(request_offset * request_blockSize, request_blockSize);
                             send(senderAddress, "fileIncome," + request_payloadElements[0] + "," + request_payloadElements[1] + "," + request_payloadElements[2] + "," + Base64.getEncoder().encodeToString(request_dataToSend));
                             System.out.println("Peer " + peerId + ": file Request received!");
-                        break;
+                            break;
                         case "fileIncome":
                             // The message content is divided into 0) fileName 1) blockSize 2) offset (*blockSize) 3) encoded file data
                             String[] income_payloadElements = messageContent.split(",");
@@ -121,8 +121,11 @@ public class Peer {
                                 int incoming_blockSize =  Integer.parseInt(income_payloadElements[1]);
                                 int incoming_offset =  Integer.parseInt(income_payloadElements[2]);
                                 byte[] decodedData = Base64.getDecoder().decode(income_payloadElements[3]);
-                                incomingFile.addDataChunk(decodedData, incoming_offset * incoming_blockSize, incoming_blockSize);
-                                System.out.println("Peer " + peerId + ": Incoming file from " + senderAddress);
+                                boolean complete = incomingFile.addDataChunk(decodedData, incoming_offset * incoming_blockSize, incoming_blockSize);
+                                System.out.println("Peer " + peerId + ": " + incomingFile.getCompletionPercentage() + "% downloading file " + incomingFile.getFileName() + " from " + senderAddress);
+                                if (complete) {
+                                    publishFile();
+                                }
                             } else {
                                 System.out.println("Peer " + peerId + ": Incoming file does not match the file, specified in the torrent file!");
                             }

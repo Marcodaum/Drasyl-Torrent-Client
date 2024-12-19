@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 
 public class Main {
-    public static void main(final String[] args) throws DrasylException, InterruptedException {
+    public static void main(final String[] args) throws DrasylException {
         HashMap<String, byte[]> files = loadFiles();
 
         // Create Tracker
@@ -25,21 +25,20 @@ public class Main {
         TorrentFiles torrentFiles = new TorrentFiles();
 
         // Create Peers and specify the file, the peer wants to download
-        Peer currentPeer1 = new Peer(1, torrentFiles.getTorrentFile("testdatei"), 3, files.get("testdatei"));
+        Peer currentPeer1 = new Peer(1, torrentFiles.getTorrentFile("testdatei1"), 100, files.get("testdatei1"));
+        wait1s();
+        Peer currentPeer2 = new Peer(2, torrentFiles.getTorrentFile("testdatei1"), 100, files.get("testdatei1"));
+        wait1s();
+        Peer currentPeer3 = new Peer(3, torrentFiles.getTorrentFile("testdatei1"), 100, files.get("testdatei1"));
+        wait1s();
+        Peer currentPeer4 = new Peer(4, torrentFiles.getTorrentFile("testdatei2"), 100, files.get("testdatei2"));
+        wait1s();
+        Peer currentPeer5 = new Peer(5, torrentFiles.getTorrentFile("testdatei2"), 100, files.get("testdatei2"));
+        wait1s();
+        Peer currentPeer6 = new Peer(6, torrentFiles.getTorrentFile("testdatei1"), 100, files.get("testdatei1"));
+        wait1s();
+        Peer currentPeer7 = new Peer(7, torrentFiles.getTorrentFile("testdatei1"), 100, files.get("testdatei1"));
 
-        Peer currentPeer2 = new Peer(2, torrentFiles.getTorrentFile("testdatei"), 3, files.get("testdatei"));
-
-        Peer currentPeer3 = new Peer(3, torrentFiles.getTorrentFile("testdatei"), 3, files.get("testdatei"));
-
-        Peer currentPeer4 = new Peer(4, torrentFiles.getTorrentFile("testdatei"), 3, files.get("testdatei"));
-
-        Peer currentPeer5 = new Peer(5, torrentFiles.getTorrentFile("testdatei"), 3, files.get("testdatei"));
-
-        Peer currentPeer6 = new Peer(6, torrentFiles.getTorrentFile("testdatei"), 3, files.get("testdatei"));
-
-        Peer currentPeer7 = new Peer(7, torrentFiles.getTorrentFile("testdatei"), 3, files.get("testdatei"));
-
-        Peer currentPeer8 = new Peer(8, torrentFiles.getTorrentFile("testdatei"), 3, null);
 
         try {
             TimeUnit.SECONDS.sleep(1);
@@ -47,9 +46,25 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        Peer currentPeer9 = new Peer(9, torrentFiles.getTorrentFile("testdatei"), 7, null);
+        Peer currentPeer8 = new Peer(8, torrentFiles.getTorrentFile("testdatei1"), 7, null);
+
+
+
+        // Newly created peer now also uses peer 9 as it downloaded the complete "testdatei1"
+        Peer currentPeer9 = new Peer(9, torrentFiles.getTorrentFile("testdatei1"), 100, null);
+
+        Peer currentPeer10 = new Peer(10, torrentFiles.getTorrentFile("testdatei2"), 100, null);
+
 
         while(true) {}
+    }
+
+    public static void wait1s() {
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static HashMap<String, byte[]> loadFiles() {

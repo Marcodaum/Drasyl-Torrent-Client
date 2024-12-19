@@ -59,9 +59,9 @@ public class Tracker {
                             if ((trackerFiles.getTrackerFiles().containsKey(messageContent))) {
                                 if (!trackerFiles.getTrackerFile(messageContent).getSeederIds().contains(senderAddress.toString())) {
                                     trackerFiles.getTrackerFile(messageContent).addSeeder(senderAddress.toString());
-                                    System.out.println("Tracker " + id + ": Publishing " + messageContent + " for " + senderAddress + " to existing File");
+                                    System.out.println("Tracker " + id + ": Publishing " + senderAddress + " as seeder for file " + messageContent);
                                 } else {
-                                    System.out.println("Tracker " + id + ": Seeder Id " + senderAddress + " already published");
+                                    System.out.println("Tracker " + id + ": Seeder Id " + senderAddress + " already published for file " + messageContent);
                                 }
                             } else {
                                 System.out.println("Tracker " + id + ": Publishing " + messageContent + " for " + senderAddress + " as new File");
