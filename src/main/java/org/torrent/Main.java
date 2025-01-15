@@ -6,17 +6,15 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import java.io.File;
-import java.nio.file.Files;
-import java.io.FileReader;
-import java.io.IOException;
+
+import java.io.*;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 
 public class Main {
     public static void main(final String[] args) throws DrasylException {
-        HashMap<String, byte[]> files = loadFiles();
+        HashMap<String, RandomAccessFile> files = loadFiles();
 
         // Create Tracker
         Tracker currentTracker = new Tracker(1);
@@ -41,14 +39,18 @@ public class Main {
 
 
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(2);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
-        Peer currentPeer8 = new Peer(8, torrentFiles.getTorrentFile("testdatei1"), 7, null);
+        Peer currentPeer8 = new Peer(8, torrentFiles.getTorrentFile("testdatei1"), 100, null);
 
-
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         // Newly created peer now also uses peer 9 as it downloaded the complete "testdatei1"
         Peer currentPeer9 = new Peer(9, torrentFiles.getTorrentFile("testdatei1"), 100, null);
@@ -67,11 +69,11 @@ public class Main {
         }
     }
 
-    public static HashMap<String, byte[]> loadFiles() {
+    public static HashMap<String, RandomAccessFile> loadFiles() {
         org.json.simple.parser.JSONParser parser = new JSONParser();
         JSONObject parsedJsonObject = null;
         JSONArray parsedJsonArray = null;
-        HashMap<String, byte[]> files  = new HashMap<>();
+        HashMap<String, RandomAccessFile> files  = new HashMap<>();
         try {
             parsedJsonObject = (JSONObject) parser.parse(new FileReader("/Users/marcodaum/IdeaProjects/AnonymousTorrent/files.json"));
             parsedJsonArray = (JSONArray) parsedJsonObject.get("file-paths");
@@ -82,11 +84,13 @@ public class Main {
         for (Object filePath : parsedJsonArray)
         {
             File currentFile = new File((String) filePath);
+            RandomAccessFile actualFile = null;
             try {
-                files.put(currentFile.getName() ,Files.readAllBytes(currentFile.toPath()));
-            } catch (IOException e) {
+                actualFile = new RandomAccessFile(currentFile, "r");
+            } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
+            files.put(currentFile.getName(), actualFile);
         }
         return files;
     }

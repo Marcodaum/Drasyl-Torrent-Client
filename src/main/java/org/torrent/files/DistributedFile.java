@@ -1,69 +1,108 @@
 package org.torrent.files;
 
-import java.util.Arrays;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.BitSet;
 
 public class DistributedFile {
     private boolean isComplete = false;
-    private byte[] data;
     private int fileSize;
     private String fileName;
-    private boolean[] chunks = null;
-    private int chunkSize = 0;
+    private BitSet chunks = null;
+    private int noOfChunks = 0;
+    private RandomAccessFile file;
+    private int assignedPeerId = 0;
 
-    public DistributedFile(byte[] fullData, int fileSize, String fileName) {
-        this.data = new byte[fileSize];
+
+    public DistributedFile(RandomAccessFile initialFile, int fileSize, String fileName, int peerId) {
         this.fileSize = fileSize;
-        this.data = fullData;
+        this.file = initialFile;
         this.fileName = fileName;
         this.isComplete = true;
-
+        this.assignedPeerId = peerId;
     }
 
-    public DistributedFile(int fileSize, String fileName) {
-        this.data = new byte[fileSize];
+    public DistributedFile(int fileSize, String fileName, int peerId) {
         this.fileSize = fileSize;
         this.fileName = fileName;
+        this.assignedPeerId = peerId;
     }
 
     public boolean isComplete() {
         if (this.isComplete) {
             return true;
+        } else if (this.chunks == null) {
+            return false;
         }
-        for(boolean b : this.chunks) if(!b) return false;
-        this.isComplete = true;
-        return true;
+        return this.chunks.cardinality() == this.noOfChunks;
     }
 
     public int getCompletionPercentage() {
         int finishedChunks = 0;
-        for (int i = 0; i < this.chunkSize; i++) {
-            if (this.chunks[i]) {
+        for (int i = 0; i < this.noOfChunks; i++) {
+            if (this.chunks.get(i)) {
                 finishedChunks++;
             }
         }
-        return (int)(((double)finishedChunks / this.chunkSize) * 100);
+        return (int)(((double)finishedChunks / this.noOfChunks) * 100);
     }
 
-    public byte[] getAllData() {return data;}
-
+    public byte[] getAllData() throws IOException {
+        byte[] data = new byte[(int) this.fileSize];
+        file.seek(0);
+        file.readFully(data);
+        return data;
+    }
 
     public byte[] getDataChunk(int offset, int length) {
         if (isComplete()) {
-            return Arrays.copyOfRange(data, offset, offset + length);
+            if (offset < 0 || offset + length > this.fileSize) {
+                throw new IllegalArgumentException("Invalid offset or length");
+            }
+            byte[] chunkToReturn = new byte[length];
+            try {
+                file.seek(offset);
+                file.readFully(chunkToReturn);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return chunkToReturn;
         } else {
             System.out.println("File not ready!");
             return null;
         }
     }
+
     public boolean addDataChunk(byte[] chunkData, int offset, int length) {
         if (this.fileSize % length == 0) {
+            int index = offset / length;
             if (chunks == null) {
                 // Calculate the number of chunks, necessary to complete the file. All chunks have the same size
-                chunkSize = this.fileSize / length;
-                chunks = new boolean[chunkSize];
+                noOfChunks = this.fileSize / length;
+                chunks = new BitSet(noOfChunks);
+                int chunkSize = this.fileSize / noOfChunks;
+
+                try {
+                    file = new RandomAccessFile("/Users/marcodaum/IdeaProjects/AnonymousTorrent/buffer_files/" + this.assignedPeerId + this.fileName, "rw");
+                    file.setLength(this.fileSize);
+                    if (index >= noOfChunks || length > chunkSize) {
+                        throw new IllegalArgumentException("Invalid chunk index or data size");
+                    }
+                    file.seek(offset);
+                    file.write(chunkData);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            System.arraycopy(chunkData, 0, this.data, offset, length);
-            chunks[offset / length] = true;
+            chunks.set(index); // Mark this chunk as received
+            /* if (this.isComplete()) {
+                try {
+                    file.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }*/
         } else {
             System.out.println("File " + this.getFileName() + ": Can not initialize Data-Chunks, as the chunk length is no divider of the file size!" + getFileSize());
         }
