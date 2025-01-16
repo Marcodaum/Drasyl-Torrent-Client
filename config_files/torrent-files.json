@@ -1,0 +1,19 @@
+{
+  "torrents": [
+    {
+      "filename": "lied.mp3",
+      "trackerId": "69790d2e88b691a30c7641db0eb36475f505969179f9c851dedef78350881c52",
+      "sizeInBytes": 3968962
+    },
+    {
+      "filename": "video.MOV",
+      "trackerId": "69790d2e88b691a30c7641db0eb36475f505969179f9c851dedef78350881c52",
+      "sizeInBytes": 814186283
+    },
+    {
+      "filename": "testdatei2",
+      "trackerId": "69790d2e88b691a30c7641db0eb36475f505969179f9c851dedef78350881c52",
+      "sizeInBytes": 26160
+    }
+  ]
+}

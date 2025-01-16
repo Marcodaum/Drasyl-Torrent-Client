@@ -2,6 +2,8 @@ package org.torrent;
 import org.drasyl.identity.DrasylAddress;
 import org.drasyl.node.*;
 import org.drasyl.node.event.*;
+
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +24,7 @@ public class Tracker {
 
     public Tracker(int id) throws DrasylException {
         this.TrackerConfig = DrasylConfig.newBuilder()
-                .identityPath(Path.of("/Users/marcodaum/IdeaProjects/AnonymousTorrent/tracker_" + id + ".identity"))
+                .identityPath(Path.of("identities" + File.separator + "tracker_" + id + ".identity"))
                 .networkId(22527)
                 .remoteEnabled(false)
                 .build();
@@ -33,7 +35,6 @@ public class Tracker {
             @Override
             public void onEvent(final Event event) {
                 if (event instanceof NodeUpEvent) {
-                    System.out.println("Tracker " + id + ": on");
                 }
                 if (event instanceof MessageEvent) {
                     String payload = ((String)((MessageEvent) event).getPayload());

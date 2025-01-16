@@ -1,0 +1,22 @@
+{
+  "files": [
+    {
+      "filename": "testdatei1",
+      "trackerId": "69790d2e88b691a30c7641db0eb36475f505969179f9c851dedef78350881c52",
+      "seederIds": [
+      ]
+    },
+    {
+      "filename": "lied.mp3",
+      "trackerId": "69790d2e88b691a30c7641db0eb36475f505969179f9c851dedef78350881c52",
+      "seederIds": [
+      ]
+    },
+    {
+      "filename": "video.MOV",
+      "trackerId": "69790d2e88b691a30c7641db0eb36475f505969179f9c851dedef78350881c52",
+      "seederIds": [
+      ]
+    }
+  ]
+}

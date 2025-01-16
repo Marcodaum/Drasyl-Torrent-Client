@@ -4,6 +4,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,7 +18,7 @@ public class TorrentFiles {
         JSONObject parsedJsonObject = null;
         JSONArray parsedJsonArray = null;
         try {
-            parsedJsonObject = (JSONObject) parser.parse(new FileReader("/Users/marcodaum/IdeaProjects/AnonymousTorrent/torrent-files.json"));
+            parsedJsonObject = (JSONObject) parser.parse(new FileReader("config_files" + File.separator + "torrent-files.json"));
             parsedJsonArray = (JSONArray) parsedJsonObject.get("torrents");
         } catch (IOException | ParseException e) {
             throw new RuntimeException(e);

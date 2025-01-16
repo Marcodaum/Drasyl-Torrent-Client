@@ -5,6 +5,7 @@ import org.drasyl.node.DrasylConfig;
 import org.drasyl.node.DrasylException;
 import org.drasyl.node.DrasylNode;
 import org.drasyl.node.event.Event;
+import org.drasyl.node.event.InboundExceptionEvent;
 import org.drasyl.node.event.MessageEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.drasyl.node.event.NodeUpEvent;
@@ -14,8 +15,7 @@ import org.torrent.files.TrackerFile;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 public class Peer {
 
-    private DrasylNode createNode(int peerId, DrasylConfig peerConfig, TorrentFile torrentFile, int maxPeersPerFile, RandomAccessFile initialFile) throws DrasylException {
+    private DrasylNode createNode(String peerId, DrasylConfig peerConfig, TorrentFile torrentFile, int maxPeersPerFile, File initialFile) throws DrasylException {
         // Convention: First element is always the reason of the message, separated by a ',' to the actual payload
         // Now that we have the tracker information, we can request the file at the peers
         // The message content is divided into 0) fileName 1) blockSize 2) offset (*blockSize)
@@ -33,7 +33,7 @@ public class Peer {
 
             private TrackerFile trackerFile = null;
 
-            final HashMap<String, DistributedFile> fileData = new HashMap<>();
+            private final HashMap<String, DistributedFile> fileData = new HashMap<>();
 
             public void askTrackerForFile() {
                 // Convention: First element is always the reason of the message, separated by a ',' to the actual payload
@@ -43,24 +43,21 @@ public class Peer {
             public void requestFile() {
                 if (trackerFile != null) {
                     ArrayList<String> seederIds = trackerFile.getSeederIds();
-                    int peersPerFile = maxPeersPerFile;
-                    if (seederIds.size() < maxPeersPerFile) {
-                        peersPerFile = seederIds.size();
-                    }
-                    int sizePerPeer;
 
-                    // Check if we need a padding
-                    if(torrentFile.getSizeInBytes() % peersPerFile != 0) {
-                        sizePerPeer = (torrentFile.getSizeInBytes() / peersPerFile) + 1;
-                    } else {
-                        sizePerPeer = torrentFile.getSizeInBytes() / peersPerFile;
+                    // If maxPeersPerFile is 0 or less, use the maximum amount of peers for that file
+                    int peersPerFile = seederIds.size();
+                    if (maxPeersPerFile >= 1) {
+                        peersPerFile = Math.min(seederIds.size(), maxPeersPerFile);
                     }
 
-                    fileData.put(trackerFile.getFilename(), new DistributedFile(sizePerPeer * peersPerFile, torrentFile.getFilename(), peerId));
+                    // Check if we need a padding. Adjust the chunkSize accordingly
+                    int chunkSize = (torrentFile.getSizeInBytes() + peersPerFile - 1) / peersPerFile;
+
+                    fileData.put(trackerFile.getFilename(), new DistributedFile(torrentFile.getSizeInBytes(), torrentFile.getFilename(), peerId));
 
                     for (int i = 1; i <= peersPerFile; i++) {
-                        System.out.println("Peer " + peerId + ": Sending request to peer..." + seederIds.get(i - 1));
-                        send(seederIds.get(i - 1), "fileRequest," + torrentFile.getFilename() + "," + sizePerPeer + "," + (i - 1));
+                        // System.out.println("Peer " + peerId + ": Sending request to peer..." + seederIds.get(i - 1));
+                        send(seederIds.get(i - 1), "fileRequest," + torrentFile.getFilename() + "," + chunkSize + "," + (i - 1));
                     }
                 } else {
                     System.out.println("Peer " + peerId + ": Could not download file. File not found!");
@@ -73,8 +70,13 @@ public class Peer {
 
             @Override
             public void onEvent(final Event event) {
+                if (event instanceof InboundExceptionEvent) {
+                    System.out.println("Peer: " + peerId + " Exception");
+                    ((InboundExceptionEvent) event).getError().printStackTrace();
+                }
+
                 if (event instanceof NodeUpEvent) {
-                    System.out.println("Peer " + peerId + ": on.");
+                    // System.out.println("Peer " + peerId + ": on.");
                     if (initialFile != null) {
                         fileData.put(torrentFile.getFilename(), new DistributedFile(initialFile, torrentFile.getSizeInBytes(), torrentFile.getFilename(), peerId));
                         publishFile();
@@ -90,6 +92,7 @@ public class Peer {
                     String messageContent = payload.substring(payloadDivider + 1);
                     DrasylAddress senderAddress = ((MessageEvent) event).getSender();
                     switch (messageReason) {
+                        // The peer receives the file information through the tracker (e.g. current seeders)
                         case "fileInfo":
                             if (!messageContent.equals("null")) {
                                 ObjectMapper objectMapper = new ObjectMapper();
@@ -105,6 +108,7 @@ public class Peer {
                                 System.out.println("Peer " + peerId + ": Tracker does not know file. Response: " + messageContent);
                             }
                             break;
+                        // The peer receives a P2P file request from another peer. It prepares the requested chunk and sends it back
                         case "fileRequest":
                             // The message content is divided into 0) fileName 1) blockSize 2) offset (*blockSize)
                             String[] request_payloadElements = messageContent.split(",");
@@ -114,8 +118,9 @@ public class Peer {
                             byte[] request_dataToSend = null;
                             request_dataToSend = requestedFile.getDataChunk(request_offset * request_blockSize, request_blockSize);
                             send(senderAddress, "fileIncome," + request_payloadElements[0] + "," + request_payloadElements[1] + "," + request_payloadElements[2] + "," + Base64.getEncoder().encodeToString(request_dataToSend));
-                            System.out.println("Peer " + peerId + ": file Request received!");
+                            //System.out.println("Peer " + peerId + ": file Request received!");
                             break;
+                        // The peer receives actual payload (chunk) of a requested file. It uses the "DistibutedFile" Object to build the file
                         case "fileIncome":
                             // The message content is divided into 0) fileName 1) blockSize 2) offset (*blockSize) 3) encoded file data
                             String[] income_payloadElements = messageContent.split(",");
@@ -124,11 +129,13 @@ public class Peer {
                                 int incoming_blockSize =  Integer.parseInt(income_payloadElements[1]);
                                 int incoming_offset =  Integer.parseInt(income_payloadElements[2]);
                                 byte[] decodedData = Base64.getDecoder().decode(income_payloadElements[3]);
-                                boolean complete = false;
-                                complete = incomingFile.addDataChunk(decodedData, incoming_offset * incoming_blockSize, incoming_blockSize);
-                                System.out.println("Peer " + peerId + ": " + incomingFile.getCompletionPercentage() + "% downloading file " + incomingFile.getFileName() + " from " + senderAddress);
-                                if (complete) {
+                                int completionInPercentage = -1;
+                                completionInPercentage = incomingFile.addDataChunk(decodedData, incoming_offset * incoming_blockSize, incoming_blockSize);
+                                if (completionInPercentage == 100) {
                                     publishFile();
+                                }
+                                if (completionInPercentage != -1) {
+                                    System.out.println("Peer " + peerId + ": " + completionInPercentage + "% downloading file " + incomingFile.getFileName() + " from " + senderAddress);
                                 }
                             } else {
                                 System.out.println("Peer " + peerId + ": Incoming file does not match the file, specified in the torrent file!");
@@ -142,14 +149,14 @@ public class Peer {
         };
     }
 
-    public Peer(int peerId, TorrentFile torrentFile, int maxPeersPerFile, RandomAccessFile initialFile) throws DrasylException {
+    public Peer(String peerId, TorrentFile torrentFile, int maxChunksPerFile, File initialFile) throws DrasylException {
         DrasylConfig peerConfig = DrasylConfig.newBuilder()
-                .identityPath(Path.of("/Users/marcodaum/IdeaProjects/AnonymousTorrent/peer_" + peerId + ".identity"))
+                .identityPath(Path.of("identities" + File.separator + "peer_" + peerId + ".identity"))
                 .networkId(22527)
                 .remoteEnabled(false)
                 .build();
 
-        DrasylNode node = createNode(peerId, peerConfig, torrentFile, maxPeersPerFile, initialFile);
+        DrasylNode node = createNode(peerId, peerConfig, torrentFile, maxChunksPerFile, initialFile);
 
         node.start();
     }
