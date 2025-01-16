@@ -29,6 +29,9 @@ public class Main {
 
         Peer[] peers = new Peer[noOfPeers];
 
+        /*
+            Testpeers
+         */
         PeerPool seeder_liedmp3s = new PeerPool(8, torrentFiles.getTorrentFile("lied.mp3"), 0, files.get("lied.mp3"));
         wait1s();
         PeerPool downloader_liedmp3 = new PeerPool(2, torrentFiles.getTorrentFile("lied.mp3"), 0);
